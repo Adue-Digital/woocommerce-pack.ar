@@ -81,6 +81,13 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             ];
         }
 
+        if(!isset($data['adue_woo_ca_conf']['activation_id'])) {
+            return [
+                'success' => false,
+                'message' => 'El ID de activación es obligatorio'
+            ];
+        }
+
         if(get_option('adue_woo_ca_conf')) {
             $res = update_option('adue_woo_ca_conf', $data['adue_woo_ca_conf'], true);
         } else {
