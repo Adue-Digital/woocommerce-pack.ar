@@ -15,7 +15,7 @@ class Http
 
     public function __construct()
     {
-        $this->url = 'http://woo_correo_api.localhost.com/get_price';
+        $this->url = 'http://woo-ca-api.adue.digital/get_price';
     }
 
     /**

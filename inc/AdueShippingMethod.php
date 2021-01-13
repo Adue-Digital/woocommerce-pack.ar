@@ -24,10 +24,6 @@ class AdueShippingMethod extends WC_Shipping_Method
 
         $response = $this->getShippingPrice($package);
 
-        echo $this->title."<br>";
-        print_r($response);
-        echo "<hr>";
-
         if(isset($response->success)) {
             if($response->success) {
                 $this->priceResponse = $response;
