@@ -9,3 +9,7 @@ Dale la posibilidad a los usuarios de que elijan la sucursal a la cuál desean q
 Mantené siempre los precios actualizados sin la necesidad de actualizar tu plugin.
 
 Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo del plugin acá.</a>
+
+## Instructivo de uso
+
+* Descargá el plugin directamente desde este sitio, descomprimí su contenido y subilo a [ruta_a_mi_sitio]/wp-content/plugins
