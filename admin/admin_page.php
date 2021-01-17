@@ -1,8 +1,8 @@
 <h3>Configuración de plugin para envíos con Correo Argentino</h3>
 
-<?php if(isset($viewData['success'])) : ?>
-    <div class="alert <?php echo $viewData['success'] ? 'success' : 'error'; ?>">
-        <?php echo $viewData['message']; ?>
+<?php if(isset($viewData['response']['success'])) : ?>
+    <div class="alert <?php echo $viewData['response']['success'] ? 'updated' : 'error'; ?>">
+        <?php echo $viewData['response']['message']; ?>
     </div>
 <?php endif; ?>
 
