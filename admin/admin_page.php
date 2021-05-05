@@ -27,3 +27,28 @@
         <button type="submit">Guardar</button>
     </p>
 </form>
+
+<hr>
+
+<h3>Exportación de órdenes</h3>
+
+<?php if(isset($errorMessage)) : ?>
+    <div class="alert alert-danger">
+        <?php echo $errorMessage; ?>
+    </div>
+<?php endif; ?>
+
+<form method="post">
+    <input type="hidden" name="exportar" value="1" />
+    <p>
+        <label><strong>Fecha desde</strong></label>
+        <input type="date" name="export_data[date_from]" value="" />
+    </p>
+    <p>
+        <label><strong>Fecha hasta</strong></label>
+        <input type="date" name="export_data[date_to]" value="" />
+    </p>
+    <p>
+        <button type="submit">Exportar</button>
+    </p>
+</form>
