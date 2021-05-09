@@ -5,6 +5,13 @@ class AdueShippingMethod extends WC_Shipping_Method
 {
 
     protected $priceResponse;
+    protected $minFreeShipping;
+    protected $orderPrice;
+
+    public function __construct() {
+        parent::__construct();
+        $this->minFreeShipping = get_option('adue_woo_ca_conf')['min_free_shipping'];
+    }
 
     public function init()
     {
@@ -81,7 +88,7 @@ class AdueShippingMethod extends WC_Shipping_Method
         if ($values['data']->get_length() &&
             $values['data']->get_width() &&
             $values['data']->get_height())
-            return ((($values['data']->get_length() / 10) * $values['quantity']) * ($values['data']->get_width() / 10) * ($values['data']->get_height() / 10)) / 6000;
+            return (($values['data']->get_length() * $values['quantity']) * $values['data']->get_width() * $values['data']->get_height()) / 6000;
 
         return 0;
     }
@@ -107,6 +114,12 @@ class AdueShippingMethod extends WC_Shipping_Method
             ->send();
 
         return json_decode($response);
+    }
+
+    protected function isFreeShipping($package = [])
+    {
+        $config = get_option('adue_woo_ca_conf');
+        return (isset($config['min_free_shipping']) && $config['min_free_shipping'] && (float) $config['min_free_shipping'] <= (float) $package['cart_subtotal']);
     }
 
 

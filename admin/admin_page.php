@@ -23,32 +23,15 @@
             <option value="responsable-inscripto" <?php if($viewData['sentData']['adue_woo_ca_conf']['shipping_method_category'] == "responsable-inscripto") echo "selected"; ?>>Responsable inscripto</option>
         </select>
     </p>
+
+    <hr>
+
+    <p>
+        <label><strong>Envío gratuito con mínimo de orden (dejar en 0 para no aplicar)</strong></label><br>
+        <input name="adue_woo_ca_conf[min_free_shipping]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] : 0; ?>" />
+    </p>
+
     <p>
         <button type="submit">Guardar</button>
-    </p>
-</form>
-
-<hr>
-
-<h3>Exportación de órdenes</h3>
-
-<?php if(isset($errorMessage)) : ?>
-    <div class="alert alert-danger">
-        <?php echo $errorMessage; ?>
-    </div>
-<?php endif; ?>
-
-<form method="post">
-    <input type="hidden" name="exportar" value="1" />
-    <p>
-        <label><strong>Fecha desde</strong></label>
-        <input type="date" name="export_data[date_from]" value="" />
-    </p>
-    <p>
-        <label><strong>Fecha hasta</strong></label>
-        <input type="date" name="export_data[date_to]" value="" />
-    </p>
-    <p>
-        <button type="submit">Exportar</button>
     </p>
 </form>

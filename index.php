@@ -17,6 +17,8 @@
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
+define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
+
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
 
 if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
@@ -54,10 +56,18 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     {
         $viewData = [];
 
+        if(isset($_GET['action']) && $_GET['action'] == 'delete_exported_file') {
+            if(isset($_GET['file_name'])) {
+                deleteExportedFile($_GET['file_name']);
+            }
+        }
+
+        $config = get_option('adue_woo_ca_conf');
         if(!get_option('adue_woo_ca_conf')) {
             $viewData['sentData']['adue_woo_ca_conf'] = [
                 'adue_api_key' => '',
-                'shipping_method_category' => ''
+                'shipping_method_category' => '',
+                'min_free_shipping' => 0
             ];
         } else {
             $viewData['sentData']['adue_woo_ca_conf'] = get_option('adue_woo_ca_conf');
@@ -75,7 +85,39 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             export($data);
         }
 
-        require_once __DIR__.'/admin/admin_page.php';
+        ?>
+        <!-- Create a header in the default WordPress 'wrap' container -->
+        <div class="wrap">
+
+            <h2>Adue - Correo Argentino</h2>
+            <?php settings_errors(); ?>
+
+            <?php $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'config'; ?>
+
+            <?php
+                switch ($active_tab) {
+                    case 'export':
+                        $files = getExportFiles();
+                        break;
+                }
+            ?>
+
+            <h2 class="nav-tab-wrapper">
+                <a href="?page=adue-correo-argentino&tab=config" class="nav-tab <?php echo $active_tab == 'config' ? 'nav-tab-active' : ''; ?>">Configuración</a>
+                <a href="?page=adue-correo-argentino&tab=export" class="nav-tab <?php echo $active_tab == 'export' ? 'nav-tab-active' : ''; ?>">Exportar órdenes</a>
+            </h2>
+
+            <?php
+                if( $active_tab == 'config' ) {
+                    require_once __DIR__.'/admin/admin_page.php';
+                } else {
+                    require_once __DIR__.'/admin/export.php';
+                } // end if/else
+            ?>
+
+        </div><!-- /.wrap -->
+        <?php
+
     }
     add_action('admin_menu', 'register_admin_submenu_page');
 
@@ -124,7 +166,38 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         ];
     }
 
+    function getExportFiles() {
+        $dir = __DIR__ . '/tmp';
+        $files = array();
+        if ($handle = opendir($dir)) {
+            while (false !== ($file = readdir($handle))) {
+                if ($file != "." && $file != "..") {
+                    $files[filemtime($dir . '/' .$file)] = $file;
+                }
+            }
+            closedir($handle);
+
+            // sort
+            rsort($files);
+
+            return $files;
+        }
+    }
+
+    function deleteExportedFile($file) {
+        $dir = __DIR__ . '/tmp/';
+        if(file_exists($dir . $file))
+            unlink($dir . $file);
+    }
+
     function export($data) {
+        $dir = __DIR__ . '/tmp';
+        $files = getExportFiles();
+        if(count($files) >= 10) {
+            for ($x = 10; $x < count($files) ; $x++) {
+                unlink($dir.'/'.$files[$x]);
+            }
+        }
 
         $headers = [
             "tipo_producto(obligatorio)",
@@ -149,7 +222,6 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             "cel(obligatorio)"
         ];
 
-
         $orders = wc_get_orders([
             'status' => ['wc-completed'],
             'limit' => -1,
@@ -163,8 +235,11 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
             foreach ($orders as $order) {
 
+                $addShippingRecord = true;
+
                 $shippingMethods = $order->get_shipping_methods();
-                $shippingMethodId = @array_shift($shippingMethods)['method_id'];
+                $shippingMethod = @array_shift($shippingMethods);
+                $shippingMethodId = $shippingMethod['method_id'];
 
                 if (in_array($shippingMethodId, ['adue_correo_argentino_sucursal', 'adue_correo_argentino_domicilio'])) {
 
@@ -174,7 +249,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
                     preg_match_all('!\d+!', $order->get_billing_phone(), $phones);
                     $phone = implode('', $phones[0]);
-
+                    $phone = ltrim($phone, '549');
+                    $phone = ltrim($phone, '54');
                     $shippingRecord = [
                         'tipo_producto' => 'CP',
                         'largo' => 83,
@@ -200,17 +276,21 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
                     foreach ($order->get_items() as $productData) {
                         $product = wc_get_product($productData['product_id']);
-                        $shippingRecord['peso'] += (float)$product->get_weight();
+                        $shippingRecord['peso'] += (float) $product->get_weight();
                         $shippingRecord['valor_del_contenido'] += (float)$product->get_price();
                     }
 
                     if ($shippingMethodId == 'adue_correo_argentino_sucursal') {
-                        $branchOfficeCode = $order->get_meta('branch_office_code');
+                        $branchOfficeCode = $order->get_meta('branch_office_code') ?
+                            $order->get_meta('branch_office_code') : getBranchOfficeCode($order->get_shipping_postcode(), $shippingMethod);
+                        if(!$branchOfficeCode) {
+                            $addShippingRecord = false;
+                        }
                         $shippingRecord['sucursal_destino'] = $branchOfficeCode ? $branchOfficeCode : 'IBL'; // TODO change for API Call
                     }
 
-
-                    $shippingRecords[] = $shippingRecord;
+                    if($addShippingRecord)
+                        $shippingRecords[] = $shippingRecord;
 
                 }
 
@@ -236,7 +316,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             }
             fclose($fp);
 
-            header('Location: ' . plugins_url('/tmp/' . $fileName, __FILE__));
+            header('Location: ' . PLUGIN_BASE_URL . 'tmp/' . $fileName);
 
             die();
 
@@ -261,5 +341,25 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         );
 
         return trim(strtr($string, $table));
+    }
+
+    function getBranchOfficeCode($postCode, $shippingMethod) {
+
+        $address = str_replace('Correo Argentino a sucursal. ', '', $shippingMethod['name']);
+        $address = explode(',', $address)[0];
+
+        include_once 'inc/Http.php';
+
+        $http = new Http();
+        $http->setUrl('http://woo_correo_api.localhost.com/branch_office_code');
+        $response = $http
+            ->setIsPost(false)
+            ->setPostFields([
+                'postal_code' => $postCode,
+                'address' => $address
+            ])
+            ->send();
+
+        return json_decode($response)->branch_office_code;
     }
 }

@@ -29,10 +29,12 @@ class WC_Adue_Correo_Argentino_Sucursal extends AdueShippingMethod
     {
         $x = 1;
         foreach ($this->priceResponse->branch_office as $code => $branchOfficeAddress) {
+            $title = $this->title.'. '.$branchOfficeAddress;
+            $title .= $this->isFreeShipping($package) ? ' GRATIS' : '';
             $this->add_rate([
                 'id' => $this->id.'_'.$code,
-                'label' => $this->title.'. '.$branchOfficeAddress,
-                'cost' => $this->priceResponse->price
+                'label' => $title,
+                'cost' => $this->isFreeShipping($package) ? 0 : $this->priceResponse->price,
             ]);
             $x++;
         }
