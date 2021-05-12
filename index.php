@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.0.0
+* Version: 1.0.1
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
