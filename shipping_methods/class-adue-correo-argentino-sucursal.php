@@ -30,11 +30,28 @@ class WC_Adue_Correo_Argentino_Sucursal extends AdueShippingMethod
         $x = 1;
         foreach ($this->priceResponse->branch_office as $code => $branchOfficeAddress) {
             $title = $this->title.'. '.$branchOfficeAddress;
-            $title .= $this->isFreeShipping($package) ? ' GRATIS' : '';
+
+            if($this->isFreeShipping($package)) {
+                $title .= ' GRATIS';
+                $cost = 0;
+            } else {
+                $additionalFee = $this->getAditionalFeeShipping();
+                if($additionalFee['aditional_fee_amount']) {
+                    if($additionalFee['aditional_fee_type'] == 'percent') {
+                        $cost = ($this->priceResponse->price * $additionalFee['aditional_fee_amount']) / 100 + $this->priceResponse->price;
+                    } else {
+                        $cost = $this->priceResponse->price + $additionalFee['aditional_fee_amount'];
+                    }
+                } else {
+                    $cost = $this->priceResponse->price;
+                }
+
+            }
+
             $this->add_rate([
                 'id' => $this->id.'_'.$code,
                 'label' => $title,
-                'cost' => $this->isFreeShipping($package) ? 0 : $this->priceResponse->price,
+                'cost' => $cost,
             ]);
             $x++;
         }

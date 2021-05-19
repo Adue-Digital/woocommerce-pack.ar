@@ -104,8 +104,9 @@ class AdueShippingMethod extends WC_Shipping_Method
         $province_to = $package['destination']['state'];
         $category = $option['shipping_method_category'];
         $type = $this->shipping_type;
+        $plugin_version = PLUGIN_VERSION;
 
-        $data = compact('weight', 'cp_from', 'cp_to', 'province_from', 'province_to', 'category', 'type');
+        $data = compact('weight', 'cp_from', 'cp_to', 'province_from', 'province_to', 'category', 'type', 'plugin_version');
 
         $http = new Http();
 
@@ -122,5 +123,12 @@ class AdueShippingMethod extends WC_Shipping_Method
         return (isset($config['min_free_shipping']) && $config['min_free_shipping'] && (float) $config['min_free_shipping'] <= (float) $package['cart_subtotal']);
     }
 
-
+    protected function getAditionalFeeShipping()
+    {
+        $config = get_option('adue_woo_ca_conf');
+        return [
+            'aditional_fee_amount' => isset($config['aditional_fee_amount']) ? $config['aditional_fee_amount'] : 0,
+            'aditional_fee_type' => isset($config['aditional_fee_type']) ? $config['aditional_fee_type'] : 'percent'
+        ];
+    }
 }

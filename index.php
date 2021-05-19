@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.0.1
+* Version: 1.1.0
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -18,10 +18,23 @@
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
+define('PLUGIN_VERSION', '1.1.0');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
 
 if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
+
+    function check_updates() {
+        require 'plugin-update-checker/plugin-update-checker.php';
+        $myUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+            'https://github.com/Adue-Digital/woocommerce-pack.ar',
+            __FILE__,
+            'adue-correo-argentino-update-checker'
+        );
+        $myUpdateChecker->setBranch('main');
+        $myUpdateChecker->getVcsApi()->enableReleaseAssets();
+    }
+    add_action('plugins_loaded', 'check_updates');
 
     function adue_shipping_methods( $methods )
     {
@@ -232,6 +245,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         if(count($orders)) {
 
             $shippingRecords = [];
+            $notAddedShippingRecords = [];
 
             foreach ($orders as $order) {
 
@@ -286,11 +300,14 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         if(!$branchOfficeCode) {
                             $addShippingRecord = false;
                         }
-                        $shippingRecord['sucursal_destino'] = $branchOfficeCode ? $branchOfficeCode : 'IBL'; // TODO change for API Call
+                        $shippingRecord['sucursal_destino'] = $branchOfficeCode;
                     }
 
-                    if($addShippingRecord)
+                    if($addShippingRecord) {
                         $shippingRecords[] = $shippingRecord;
+                    } else {
+                        $notAddedShippingRecords[] = $order->get_order_number();
+                    }
 
                 }
 
@@ -315,6 +332,12 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                 fputcsv($fp, $shippingRecord, ';', ' ');
             }
             fclose($fp);
+
+            if (count($notAddedShippingRecords)) {
+                $errorMessage = 'Las siguientes órdenes no se han podido agregar al archivo ya que no se pudo obtener el código de sucursal. Sin embargo podés <a href="'.PLUGIN_BASE_URL . 'tmp/' . $fileName .'" target="_blank">descargar tu archivo acá</a>';
+                require_once __DIR__ . '/admin/admin_page.php';
+                die();
+            }
 
             header('Location: ' . PLUGIN_BASE_URL . 'tmp/' . $fileName);
 

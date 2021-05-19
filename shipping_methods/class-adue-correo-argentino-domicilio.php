@@ -32,7 +32,17 @@ class WC_Adue_Correo_Argentino_Domicilio extends AdueShippingMethod
             $title .= ' GRATIS';
             $cost = 0;
         } else {
-            $cost = $this->priceResponse->price;
+            $additionalFee = $this->getAditionalFeeShipping();
+            if($additionalFee['aditional_fee_amount']) {
+                if($additionalFee['aditional_fee_type'] == 'percent') {
+                    $cost = ($this->priceResponse->price * $additionalFee['aditional_fee_amount']) / 100 + $this->priceResponse->price;
+                } else {
+                    $cost = $this->priceResponse->price + $additionalFee['aditional_fee_amount'];
+                }
+            } else {
+                $cost = $this->priceResponse->price;
+            }
+
         }
 
         $this->add_rate([
