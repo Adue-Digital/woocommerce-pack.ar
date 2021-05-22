@@ -61,18 +61,18 @@ class AdueShippingMethod extends WC_Shipping_Method
 
     protected function getTotalWheight($package)
     {
-        $weight = 0;
+        $totalWeight = 0;
 
         foreach ( $package['contents'] as $id => $values ) {
 
             $weight = $this->getWeight($values);
             $volumetricWeight = $this->volumetricWeight($values);
 
-            if ($volumetricWeight > $weight ) { $weight = $volumetricWeight; }
+            if ($volumetricWeight > $weight ) { $totalWeight += $volumetricWeight; } else { $totalWeight += $weight; }
 
         }
 
-        return $weight;
+        return $totalWeight;
     }
 
     protected function getWeight($values)

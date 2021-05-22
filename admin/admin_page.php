@@ -30,13 +30,35 @@
 
     <hr>
 
+    <h3>Texto de email de estado "En camino"</h3>
+
+    <p>
+        Ingresá en el siguiente cuadro el contenido del email que se enviará cuando la orden pase a estado "En camino". Usá la etiqueta [tracking_code] para determinar el lugar en donde se va a mostrar el código de seguimiento.<br>
+        Si necesitás configurar alguna opción más (como el título o el asunto del correo), lo podés hacer directamente desde <a href="<?php echo get_site_url(); ?>/wp-admin/admin.php?page=wc-settings&tab=email&section=wc_ongoing" target="_blank">la opción de WooCommerce</a>.
+        <?php
+            wp_editor( $viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content'] , 'ongoing_email_content', array(
+                'wpautop'       => true,
+                'media_buttons' => false,
+                'textarea_name' => 'adue_woo_ca_conf[ongoing_email_content]',
+                'editor_class'  => 'my_custom_class',
+                'textarea_rows' => 10
+            ) );
+        ?>
+    </p>
+
+    <hr>
+
+    <h3>Ajustes adicionales</h3>
+
     <p>
         <label><strong>Envío gratuito con mínimo de orden (dejar en 0 para no aplicar)</strong></label><br>
-        <input name="adue_woo_ca_conf[min_free_shipping]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] : 0; ?>" />
+        Establecer un monto mínimo de orden desde el cual se ofrece el envío de forma gratuita.<br>
+        $ <input name="adue_woo_ca_conf[min_free_shipping]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] : 0; ?>" />
     </p>
 
     <p>
         <label><strong>Agregar monto adicional al precio de envío (dejar en 0 para no aplicar)</strong></label><br>
+        Establecer un cargo adicional al precio del envío.<br>
         <input name="adue_woo_ca_conf[aditional_fee_amount]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount']) ? $viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount'] : 0; ?>" />
         <select name="adue_woo_ca_conf[aditional_fee_type]">
             <option value="percent" <?php if(isset($viewData['sentData']['adue_woo_ca_conf']['aditional_fee_type']) && $viewData['sentData']['adue_woo_ca_conf']['aditional_fee_type'] == 'percent') echo "selected"; ?>>Porcentaje</option>

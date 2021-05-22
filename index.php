@@ -55,6 +55,100 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
     add_action( 'woocommerce_shipping_init', 'adue_shipping_methods_init' );
 
+    /*
+     * Adding shipping code
+     */
+    if ( ! function_exists( 'ca_add_meta_boxes' ) ) {
+        function ca_add_meta_boxes() {
+            add_meta_box( 'ca_tracking_code',
+                __('Código de seguimiento Correo Argentino', 'woocommerce'),
+                'ca_add_tracking_code_to_order',
+                'shop_order',
+                'side',
+                'core'
+            );
+        }
+    }
+    add_action( 'add_meta_boxes', 'ca_add_meta_boxes' );
+    if ( ! function_exists( 'ca_add_tracking_code_to_order' ) ) {
+        function ca_add_tracking_code_to_order() {
+            global $post;
+
+            $meta_field_data = get_post_meta( $post->ID, '_ca_tracking_code', true ) ? get_post_meta( $post->ID, '_ca_tracking_code', true ) : '';
+
+            echo '<input type="hidden" name="ca_tracking_code_field_nonce" value="' . wp_create_nonce() . '">
+            <p style="border-bottom:solid 1px #eee;padding-bottom:13px;">
+            <input type="text" style="width:250px;" name="ca_tracking_code" placeholder="' . $meta_field_data . '" value="' . $meta_field_data . '"></p>';
+
+        }
+    }
+    if ( ! function_exists( 'ca_save_wc_order_tracking_code' ) ) {
+
+        function ca_save_wc_order_tracking_code( $post_id ) {
+
+            // We need to verify this with the proper authorization (security stuff).
+
+            // Check if our nonce is set.
+            if ( ! isset( $_POST[ 'ca_tracking_code_field_nonce' ] ) ) {
+                return $post_id;
+            }
+            $nonce = $_REQUEST[ 'ca_tracking_code_field_nonce' ];
+
+            //Verify that the nonce is valid.
+            if ( ! wp_verify_nonce( $nonce ) ) {
+                return $post_id;
+            }
+
+            // If this is an autosave, our form has not been submitted, so we don't want to do anything.
+            if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+                return $post_id;
+            }
+
+            // Check the user's permissions.
+            if ( 'page' == $_POST[ 'post_type' ] ) {
+
+                if ( ! current_user_can( 'edit_page', $post_id ) ) {
+                    return $post_id;
+                }
+            } else {
+
+                if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                    return $post_id;
+                }
+            }
+            // --- Its safe for us to save the data ! --- //
+
+            // Sanitize user input  and update the meta field in the database.
+            update_post_meta( $post_id, '_ca_tracking_code', $_POST[ 'ca_tracking_code' ] );
+        }
+    }
+    add_action( 'save_post', 'ca_save_wc_order_tracking_code', 10, 1 );
+    /*
+     * End adding shipping code
+     */
+
+    /** Add Ongoing status to order */
+    function add_ongoing_to_order_statuses( $order_statuses ) {
+        $new_order_statuses = array();
+        // add new order status after processing
+        foreach ( $order_statuses as $key => $status ) {
+            $new_order_statuses[ $key ] = $status;
+            if ( 'wc-completed' === $key ) {
+                $new_order_statuses['wc-ca-ongoing'] = 'En camino';
+                $new_order_statuses['wc-ca-delivered'] = 'En destino';
+            }
+        }
+        return $new_order_statuses;
+    }
+    add_filter( 'wc_order_statuses', 'add_ongoing_to_order_statuses' );
+
+    /** Register Ongoing email */
+    function register_ca_ongoing_email( $emails ) {
+        require_once 'emails/class-wc-ongoing.php';
+        $emails['WC_Ongoing'] = new WC_Ongoing();
+        return $emails;
+    }
+    add_filter( 'woocommerce_email_classes', 'register_ca_ongoing_email', 90, 1 );
 
     function register_admin_submenu_page()
     {
@@ -80,10 +174,27 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             $viewData['sentData']['adue_woo_ca_conf'] = [
                 'adue_api_key' => '',
                 'shipping_method_category' => '',
-                'min_free_shipping' => 0
+                'min_free_shipping' => 0,
+                'aditional_fee_amount' => 0,
+                'ongoing_email_content' => 'El código de seguimiento de tu pedido es [tracking_code] y podés ver el estado del envío <a href="https://www.correoargentino.com.ar/formularios/e-commerce?id=[tracking_code]" target="_blank">haciendo click acá</a>'
             ];
         } else {
             $viewData['sentData']['adue_woo_ca_conf'] = get_option('adue_woo_ca_conf');
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['adue_api_key']))
+                $viewData['sentData']['adue_woo_ca_conf']['adue_api_key'] = '';
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['shipping_method_category']))
+                $viewData['sentData']['adue_woo_ca_conf']['shipping_method_category'] = '';
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']))
+                $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] = 0;
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount']))
+                $viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount'] = 0;
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content']))
+                $viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content'] = 'El código de seguimiento de tu pedido es [tracking_code] y podés ver el estado del envío <a href="https://www.correoargentino.com.ar/formularios/e-commerce?id=[tracking_code]" target="_blank">haciendo click acá</a>';
         }
 
         $viewData['statuses'] = wc_get_order_statuses();
@@ -133,7 +244,6 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
     }
     add_action('admin_menu', 'register_admin_submenu_page');
-
 
     function save_branch_office_code( $order, $data ) {
         $chosen_methods = WC()->session->get( 'chosen_shipping_methods' );

@@ -6,9 +6,7 @@
     </div>
 <?php endif; ?>
 
-<div>
-    ¡ATENCIÓN! te recomendamos que no realices exportaciones con un rango de fechas muy grande ya que podría afectar en el funcionamiento del servidor.
-</div>
+<p>¡ATENCIÓN! te recomendamos que no realices exportaciones con un rango de fechas muy grande ya que podría afectar en el funcionamiento del servidor.</p>
 
 <form method="post" action="/wp-admin/admin.php?page=adue-correo-argentino&tab=export">
     <input type="hidden" name="exportar" value="1" />
@@ -28,6 +26,8 @@
 <hr>
 
 <h3>Últimas exportaciones</h3>
+
+<p>Revisá tus exportaciones anteriores para ni cargar dos veces el mismo envío</p>
 
 <?php foreach ($files as $file) : ?>
     <p>
