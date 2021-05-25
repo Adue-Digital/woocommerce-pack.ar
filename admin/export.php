@@ -1,12 +1,15 @@
 <h3>Exportación de órdenes</h3>
 
+<p>
+    ¡ATENCIÓN! te recomendamos que no realices exportaciones con un rango de fechas muy grande ya que podría afectar en el funcionamiento del servidor.<br>
+    Si bien, hicimos todo lo posible para mantener la compatibilidad entre las versiones del plugin, es posible que algunos envíos a sucursal no puedan ser cargados por no encontrar la sucursal correspondiente. Si es así, vas a poder ver cuáles son acá abajo.
+</p>
+
 <?php if(isset($errorMessage)) : ?>
     <div class="alert alert-danger">
         <?php echo $errorMessage; ?>
     </div>
 <?php endif; ?>
-
-<p>¡ATENCIÓN! te recomendamos que no realices exportaciones con un rango de fechas muy grande ya que podría afectar en el funcionamiento del servidor.</p>
 
 <form method="post" action="/wp-admin/admin.php?page=adue-correo-argentino&tab=export">
     <input type="hidden" name="exportar" value="1" />
@@ -27,20 +30,25 @@
 
 <h3>Últimas exportaciones</h3>
 
-<p>Revisá tus exportaciones anteriores para ni cargar dos veces el mismo envío</p>
+<p>Revisá tus exportaciones anteriores para no cargar dos veces el mismo envío</p>
 
 <?php foreach ($files as $file) : ?>
     <p>
-        Exportación fecha
         <?php
-            $fileName = str_replace('export-', '', $file);
-            $fileName = str_replace('.csv', '', $fileName);
-            echo substr($fileName, 6, 2) . '/' .
-                substr($fileName, 4, 2) . '/' .
-                substr($fileName, 0, 4) . ' - ' .
-                substr($fileName, 8, 2) . ':' .
-                substr($fileName, 10, 2) . ':' .
-                substr($fileName, 12);
+            $extension = substr(strrchr($file, "."), 1);
+
+            if($extension != 'csv')
+                continue;
+
+            $fileName = @str_replace('export-', '', $file);
+            $fileName = @str_replace('.csv', '', $fileName);
+            echo 'Exportación fecha ' .
+                @substr($fileName, 6, 2) . '/' .
+                @substr($fileName, 4, 2) . '/' .
+                @substr($fileName, 0, 4) . ' - ' .
+                @substr($fileName, 8, 2) . ':' .
+                @substr($fileName, 10, 2) . ':' .
+                @substr($fileName, 12);
         ?>
         <a href="<?php echo PLUGIN_BASE_URL . 'tmp/' . $file; ?>">Descargar</a>
         <a href="/wp-admin/admin.php?page=adue-correo-argentino&tab=export&action=delete_exported_file&file_name=<?php echo $file; ?>" style="color: red;">Eliminar</a>

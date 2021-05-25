@@ -36,7 +36,7 @@
         Ingresá en el siguiente cuadro el contenido del email que se enviará cuando la orden pase a estado "En camino". Usá la etiqueta [tracking_code] para determinar el lugar en donde se va a mostrar el código de seguimiento.<br>
         Si necesitás configurar alguna opción más (como el título o el asunto del correo), lo podés hacer directamente desde <a href="<?php echo get_site_url(); ?>/wp-admin/admin.php?page=wc-settings&tab=email&section=wc_ongoing" target="_blank">la opción de WooCommerce</a>.
         <?php
-            wp_editor( $viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content'] , 'ongoing_email_content', array(
+            wp_editor( html_entity_decode(stripslashes($viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content'])) , 'ongoing_email_content', array(
                 'wpautop'       => true,
                 'media_buttons' => false,
                 'textarea_name' => 'adue_woo_ca_conf[ongoing_email_content]',

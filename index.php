@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.1.0
+* Version: 1.2.0
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -18,7 +18,7 @@
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.1.0');
+define('PLUGIN_VERSION', '1.2.0');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
 
@@ -55,79 +55,67 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
     add_action( 'woocommerce_shipping_init', 'adue_shipping_methods_init' );
 
-    /*
-     * Adding shipping code
-     */
-    if ( ! function_exists( 'ca_add_meta_boxes' ) ) {
-        function ca_add_meta_boxes() {
-            add_meta_box( 'ca_tracking_code',
-                __('Código de seguimiento Correo Argentino', 'woocommerce'),
-                'ca_add_tracking_code_to_order',
-                'shop_order',
-                'side',
-                'core'
-            );
-        }
+    /** Adding shipping code */
+    function ca_add_meta_boxes() {
+        add_meta_box( 'ca_tracking_code',
+            __('Código de seguimiento Correo Argentino', 'woocommerce'),
+            'ca_add_tracking_code_to_order',
+            'shop_order',
+            'side',
+            'core'
+        );
     }
     add_action( 'add_meta_boxes', 'ca_add_meta_boxes' );
-    if ( ! function_exists( 'ca_add_tracking_code_to_order' ) ) {
-        function ca_add_tracking_code_to_order() {
-            global $post;
 
-            $meta_field_data = get_post_meta( $post->ID, '_ca_tracking_code', true ) ? get_post_meta( $post->ID, '_ca_tracking_code', true ) : '';
+    function ca_add_tracking_code_to_order() {
+        global $post;
 
-            echo '<input type="hidden" name="ca_tracking_code_field_nonce" value="' . wp_create_nonce() . '">
-            <p style="border-bottom:solid 1px #eee;padding-bottom:13px;">
-            <input type="text" style="width:250px;" name="ca_tracking_code" placeholder="' . $meta_field_data . '" value="' . $meta_field_data . '"></p>';
+        $meta_field_data = get_post_meta( $post->ID, '_ca_tracking_code', true ) ? get_post_meta( $post->ID, '_ca_tracking_code', true ) : '';
 
-        }
+        echo '<input type="hidden" name="ca_tracking_code_field_nonce" value="' . wp_create_nonce() . '">
+        <p style="border-bottom:solid 1px #eee;padding-bottom:13px;">
+        <input type="text" style="width:250px;" name="ca_tracking_code" placeholder="' . $meta_field_data . '" value="' . $meta_field_data . '"></p>';
+
     }
-    if ( ! function_exists( 'ca_save_wc_order_tracking_code' ) ) {
+    function ca_save_wc_order_tracking_code( $post_id ) {
 
-        function ca_save_wc_order_tracking_code( $post_id ) {
+        // We need to verify this with the proper authorization (security stuff).
 
-            // We need to verify this with the proper authorization (security stuff).
-
-            // Check if our nonce is set.
-            if ( ! isset( $_POST[ 'ca_tracking_code_field_nonce' ] ) ) {
-                return $post_id;
-            }
-            $nonce = $_REQUEST[ 'ca_tracking_code_field_nonce' ];
-
-            //Verify that the nonce is valid.
-            if ( ! wp_verify_nonce( $nonce ) ) {
-                return $post_id;
-            }
-
-            // If this is an autosave, our form has not been submitted, so we don't want to do anything.
-            if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-                return $post_id;
-            }
-
-            // Check the user's permissions.
-            if ( 'page' == $_POST[ 'post_type' ] ) {
-
-                if ( ! current_user_can( 'edit_page', $post_id ) ) {
-                    return $post_id;
-                }
-            } else {
-
-                if ( ! current_user_can( 'edit_post', $post_id ) ) {
-                    return $post_id;
-                }
-            }
-            // --- Its safe for us to save the data ! --- //
-
-            // Sanitize user input  and update the meta field in the database.
-            update_post_meta( $post_id, '_ca_tracking_code', $_POST[ 'ca_tracking_code' ] );
+        // Check if our nonce is set.
+        if ( ! isset( $_POST[ 'ca_tracking_code_field_nonce' ] ) ) {
+            return $post_id;
         }
+        $nonce = $_REQUEST[ 'ca_tracking_code_field_nonce' ];
+
+        //Verify that the nonce is valid.
+        if ( ! wp_verify_nonce( $nonce ) ) {
+            return $post_id;
+        }
+
+        // If this is an autosave, our form has not been submitted, so we don't want to do anything.
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return $post_id;
+        }
+
+        // Check the user's permissions.
+        if ( 'page' == $_POST[ 'post_type' ] ) {
+
+            if ( ! current_user_can( 'edit_page', $post_id ) ) {
+                return $post_id;
+            }
+        } else {
+
+            if ( ! current_user_can( 'edit_post', $post_id ) ) {
+                return $post_id;
+            }
+        }
+
+        update_post_meta( $post_id, '_ca_tracking_code', $_POST[ 'ca_tracking_code' ] );
     }
     add_action( 'save_post', 'ca_save_wc_order_tracking_code', 10, 1 );
-    /*
-     * End adding shipping code
-     */
+    /** End adding shipping code */
 
-    /** Add Ongoing status to order */
+    /** Adding Ongoing and Delivered status to order */
     function add_ongoing_to_order_statuses( $order_statuses ) {
         $new_order_statuses = array();
         // add new order status after processing
@@ -141,6 +129,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         return $new_order_statuses;
     }
     add_filter( 'wc_order_statuses', 'add_ongoing_to_order_statuses' );
+    /** End adding Ongoing and Delivered status to order */
 
     /** Register Ongoing email */
     function register_ca_ongoing_email( $emails ) {
@@ -149,6 +138,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         return $emails;
     }
     add_filter( 'woocommerce_email_classes', 'register_ca_ongoing_email', 90, 1 );
+    /** End register Ongoing email */
 
     function register_admin_submenu_page()
     {
@@ -271,6 +261,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             ];
         }
 
+        $data['adue_woo_ca_conf']['ongoing_email_content'] = htmlentities(stripslashes($data['adue_woo_ca_conf']['ongoing_email_content']));
+
         if(get_option('adue_woo_ca_conf')) {
             $res = update_option('adue_woo_ca_conf', $data['adue_woo_ca_conf'], true);
         } else {
@@ -294,7 +286,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         $files = array();
         if ($handle = opendir($dir)) {
             while (false !== ($file = readdir($handle))) {
-                if ($file != "." && $file != "..") {
+                if ($file != "." && $file != ".." && $file != "index.php") {
                     $files[filemtime($dir . '/' .$file)] = $file;
                 }
             }
