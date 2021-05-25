@@ -6,7 +6,7 @@
 </p>
 
 <?php if(isset($errorMessage)) : ?>
-    <div class="alert alert-danger">
+    <div class="error notice">
         <?php echo $errorMessage; ?>
     </div>
 <?php endif; ?>

@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.2
+* Version: 1.2.4
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -12,13 +12,14 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.2
+* @version 1.2.4
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.2');
+define('PLUGIN_VERSION', '1.2.4');
+define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
 
@@ -209,10 +210,17 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             <?php $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'config'; ?>
 
             <?php
-                switch ($active_tab) {
-                    case 'export':
-                        $files = getExportFiles();
-                        break;
+                if ($active_tab == 'export') {
+                    $files = getExportFiles();
+
+                    if(isset($_GET['not-included'])) {
+                        $errorMessage = 'Las siguientes órdenes no se han podido exportar ya que no se encontró la sucursal correspondiente, sin embargo vas a poder descargar el archivo en la lista de abajo<br>';
+                        $errorMessage .= '<ul>';
+                        foreach (explode('-', $_GET['not-included']) as $orderNumber) {
+                            $errorMessage .= '<li>Orden#'.$orderNumber.'</li>';
+                        }
+                        $errorMessage .= '</ul>';
+                    }
                 }
             ?>
 
@@ -343,7 +351,6 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             'date_created' => $data['date_from'].'...'.$data['date_to']
         ]);
 
-
         if(count($orders)) {
 
             $shippingRecords = [];
@@ -415,29 +422,27 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
             }
 
-            if (!count($shippingRecords)) {
+            if (count($shippingRecords)) {
+                $fileName = 'export-' . date('YmdHis') . '.csv';
+                $filePath = __DIR__ . '/tmp/' . $fileName;
 
-                $errorMessage = 'No se han encontrado órdenes con los filtros utilizados';
-                require_once __DIR__ . '/admin/admin_page.php';
-                die();
+                $fp = fopen($filePath, 'w+');
 
+                fputcsv($fp, $headers, ';');
+
+                foreach ($shippingRecords as $shippingRecord) {
+                    fputcsv($fp, $shippingRecord, ';', ' ');
+                }
+                fclose($fp);
             }
-
-            $fileName = 'export-' . date('YmdHis') . '.csv';
-            $filePath = __DIR__ . '/tmp/' . $fileName;
-
-            $fp = fopen($filePath, 'w+');
-
-            fputcsv($fp, $headers, ';');
-
-            foreach ($shippingRecords as $shippingRecord) {
-                fputcsv($fp, $shippingRecord, ';', ' ');
-            }
-            fclose($fp);
 
             if (count($notAddedShippingRecords)) {
-                $errorMessage = 'Las siguientes órdenes no se han podido agregar al archivo ya que no se pudo obtener el código de sucursal. Sin embargo podés <a href="'.PLUGIN_BASE_URL . 'tmp/' . $fileName .'" target="_blank">descargar tu archivo acá</a>';
-                require_once __DIR__ . '/admin/admin_page.php';
+                header('Location: ' . site_url() . '/wp-admin/admin.php?page=adue-correo-argentino&tab=export&not-included=' . implode('-', $notAddedShippingRecords));
+                die();
+            }
+
+            if (!count($shippingRecords)) {
+                header('Location: ' . site_url() . '/wp-admin/admin.php?page=adue-correo-argentino&tab=export&not-founded=true');
                 die();
             }
 
@@ -447,9 +452,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
         }
 
-        $errorMessage = 'No se han encontrado órdenes con los filtros utilizados';
-        require_once __DIR__ . '/admin/admin_page.php';
-
+        header('Location: ' . site_url() . '/wp-admin/admin.php?page=adue-correo-argentino&tab=export&not-founded=true');
         die();
     }
 
@@ -476,7 +479,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         include_once 'inc/Http.php';
 
         $http = new Http();
-        $http->setUrl('http://woo_correo_api.localhost.com/branch_office_code');
+        $http->setUrl(API_URL.'/branch_office_code');
         $response = $http
             ->setIsPost(false)
             ->setPostFields([
@@ -485,6 +488,6 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             ])
             ->send();
 
-        return json_decode($response)->branch_office_code;
+        return isset(json_decode($response)->branch_office_code) ? json_decode($response)->branch_office_code : false;
     }
 }
