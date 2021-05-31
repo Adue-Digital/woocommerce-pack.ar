@@ -11,7 +11,7 @@
     </div>
 <?php endif; ?>
 
-<form method="post" action="/wp-admin/admin.php?page=adue-correo-argentino&tab=export">
+<form method="post" action="<?php echo site_url(); ?>/wp-admin/admin.php?page=adue-correo-argentino&tab=export">
     <input type="hidden" name="exportar" value="1" />
     <p>
         <label><strong>Fecha desde</strong></label>
