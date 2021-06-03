@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.5
+* Version: 1.2.6
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -18,7 +18,7 @@
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.5');
+define('PLUGIN_VERSION', '1.2.6');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -346,7 +346,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
         ];
 
         $orders = wc_get_orders([
-            'status' => ['wc-completed'],
+            'status' => ['wc-completed', 'wc-processing'],
             'limit' => -1,
             'date_created' => $data['date_from'].'...'.$data['date_to']
         ]);
