@@ -13,7 +13,7 @@ $emailContent = get_option('adue_woo_ca_conf', [
  */
 do_action( 'woocommerce_email_header', $email_heading, $email ); ?>
 
-    <p><?php echo str_replace('[tracking_code]', $order->get_meta('_ca_tracking_code'), $emailContent ); ?></p>
+    <p><?php echo str_replace('[tracking_code]', $order->get_meta('_ca_tracking_code'), html_entity_decode(stripslashes($emailContent)) ); ?></p>
     <p><?php echo __( 'Aprovechamos para recordarte los detalles de tu compra:', 'woocommerce' ); ?></p>
 
 <?php

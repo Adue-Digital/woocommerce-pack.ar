@@ -34,6 +34,11 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.7 =
+* Corrección de codificación de HTML en correo "En camino"
+* Eliminación de caracteres especiales en todas las cadenas de exportación de .csv
+* Corte de número de teléfono a 10 dígitos
+
 = 1.2 =
 * Exportación de órdenes a archivo .csv para el uso de la función "Envío masivo".
 * Configuración de monto mínimo de orden para ofrecer envío gratuito.

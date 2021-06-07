@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.6
+* Version: 1.2.7
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -18,7 +18,7 @@
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.6');
+define('PLUGIN_VERSION', '1.2.7');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -374,6 +374,11 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                     $phone = implode('', $phones[0]);
                     $phone = ltrim($phone, '549');
                     $phone = ltrim($phone, '54');
+
+                    if(strlen($phone) > 10) {
+                        $phone = substr($phone, -10);
+                    }
+
                     $shippingRecord = [
                         'tipo_producto' => 'CP',
                         'largo' => 83,
@@ -457,6 +462,10 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
 
     function normalizeString($string) {
+        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+
+        $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+
         $table = array(
             'Š'=>'S', 'š'=>'s', 'Đ'=>'Dj', 'đ'=>'dj', 'Ž'=>'Z', 'ž'=>'z', 'Č'=>'C', 'č'=>'c', 'Ć'=>'C', 'ć'=>'c',
             'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
