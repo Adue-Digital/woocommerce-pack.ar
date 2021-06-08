@@ -34,6 +34,10 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.8 =
+* Corrección en exportación de órdenes con productos variables
+* Corrección de desaparición de órdenes cuando cambian a estados "En camino" y "En destino"
+
 = 1.2.7 =
 * Corrección de codificación de HTML en correo "En camino"
 * Eliminación de caracteres especiales en todas las cadenas de exportación de .csv

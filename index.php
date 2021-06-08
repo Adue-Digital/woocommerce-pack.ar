@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.7
+* Version: 1.2.8
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.5
+* @version 1.2.8
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.7');
+define('PLUGIN_VERSION', '1.2.8');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -117,6 +117,27 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     /** End adding shipping code */
 
     /** Adding Ongoing and Delivered status to order */
+    function register_custom_statuses() {
+        register_post_status( 'wc-ca-ongoing', array(
+            'label'                     => _x( 'En camino', 'Order status', 'woocommerce' ),
+            'public'                    => true,
+            'exclude_from_search'       => false,
+            'show_in_admin_all_list'    => true,
+            'show_in_admin_status_list' => true,
+            'label_count'               => _n_noop( 'En camino <span class="count">(%s)</span>', 'En camino <span class="count">(%s)</span>', 'woocommerce' )
+        ) );
+
+        register_post_status( 'wc-ca-delivered', array(
+            'label'                     => _x( 'En destino', 'Order status', 'woocommerce' ),
+            'public'                    => true,
+            'exclude_from_search'       => false,
+            'show_in_admin_all_list'    => true,
+            'show_in_admin_status_list' => true,
+            'label_count'               => _n_noop( 'En destino <span class="count">(%s)</span>', 'En destino <span class="count">(%s)</span>', 'woocommerce' )
+        ) );
+    }
+    add_action( 'init', 'register_custom_statuses' );
+
     function add_ongoing_to_order_statuses( $order_statuses ) {
         $new_order_statuses = array();
         // add new order status after processing
@@ -403,7 +424,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                     ];
 
                     foreach ($order->get_items() as $productData) {
-                        $product = wc_get_product($productData['product_id']);
+                        $productId = isset($productData['variation_id']) ? $productData['variation_id'] : $productData['product_id'];
+                        $product = wc_get_product($productId);
                         $shippingRecord['peso'] += (float) $product->get_weight();
                         $shippingRecord['valor_del_contenido'] += (float)$product->get_price();
                     }
