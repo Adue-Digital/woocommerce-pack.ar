@@ -88,7 +88,7 @@ class AdueShippingMethod extends WC_Shipping_Method
         if ($values['data']->get_length() &&
             $values['data']->get_width() &&
             $values['data']->get_height())
-            return (($values['data']->get_length() * $values['quantity']) * $values['data']->get_width() * $values['data']->get_height()) / 6000;
+            return ((($values['data']->get_length() / 10) * $values['quantity']) * ($values['data']->get_width() / 10) * ($values['data']->get_height() / 10)) / 6000;
 
         return 0;
     }
