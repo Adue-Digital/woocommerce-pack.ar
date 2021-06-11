@@ -34,6 +34,12 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.10 =
+* Corrección en cálculo de peso volumétrico
+
+= 1.2.9 =
+* Corrección en exportación de órdenes con productos inexistentes
+
 = 1.2.8 =
 * Corrección en exportación de órdenes con productos variables
 * Corrección de desaparición de órdenes cuando cambian a estados "En camino" y "En destino"
