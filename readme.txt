@@ -34,6 +34,9 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.11 =
+* Hotfix de exportación de csv
+
 = 1.2.10 =
 * Corrección en cálculo de peso volumétrico
 

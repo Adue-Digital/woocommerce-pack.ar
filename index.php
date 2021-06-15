@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.10
+* Version: 1.2.11
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.10
+* @version 1.2.11
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.10');
+define('PLUGIN_VERSION', '1.2.11');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -416,7 +416,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         'dpto' => '',
                         'codpostal_destino' => $order->get_shipping_postcode(),
                         'destino_nombre' => normalizeString($order->get_formatted_shipping_full_name()),
-                        'destino_email' => normalizeString($order->get_billing_email()),
+                        'destino_email' => $order->get_billing_email(),
                         'cod_area_tel' => '54',
                         'tel' => $phone,
                         'cod_area_cel' => '549',
@@ -424,7 +424,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                     ];
 
                     foreach ($order->get_items() as $productData) {
-                        $productId = isset($productData['variation_id']) ? $productData['variation_id'] : $productData['product_id'];
+                        $productId = isset($productData['variation_id']) && $productData['variation_id'] ? $productData['variation_id'] : $productData['product_id'];
                         $product = wc_get_product($productId);
                         if(!$product)
                             continue;
@@ -500,6 +500,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b',
             'ÿ'=>'y', 'Ŕ'=>'R', 'ŕ'=>'r', ';' => ','
         );
+
+        $string = str_replace('-', ' ', $string);
 
         return trim(strtr($string, $table));
     }
