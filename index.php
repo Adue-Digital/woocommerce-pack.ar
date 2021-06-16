@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.11
+* Version: 1.2.12
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 4.5.2
@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.11
+* @version 1.2.12
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.11');
+define('PLUGIN_VERSION', '1.2.12');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -55,6 +55,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
     }
     add_action( 'woocommerce_shipping_init', 'adue_shipping_methods_init' );
+
+    add_filter( 'woocommerce_checkout_fields' , 'bbloomer_add_field_and_reorder_fields' );
 
     /** Adding shipping code */
     function ca_add_meta_boxes() {
@@ -486,10 +488,6 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
 
     function normalizeString($string) {
-        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
-
-        $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
-
         $table = array(
             'Š'=>'S', 'š'=>'s', 'Đ'=>'Dj', 'đ'=>'dj', 'Ž'=>'Z', 'ž'=>'z', 'Č'=>'C', 'č'=>'c', 'Ć'=>'C', 'ć'=>'c',
             'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
@@ -501,9 +499,15 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             'ÿ'=>'y', 'Ŕ'=>'R', 'ŕ'=>'r', ';' => ','
         );
 
+        $string =  trim(strtr($string, $table));
+
+        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+
+        $string = preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+
         $string = str_replace('-', ' ', $string);
 
-        return trim(strtr($string, $table));
+        return $string;
     }
 
     function getBranchOfficeCode($postCode, $shippingMethod) {
