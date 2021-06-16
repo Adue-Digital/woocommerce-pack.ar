@@ -34,6 +34,9 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.13 =
+* Hotfix de checkout
+
 = 1.2.12 =
 * Hotfix de exportación de csv (vocales con tilde)
 
