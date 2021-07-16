@@ -14,6 +14,13 @@
 <form method="post" action="<?php echo site_url(); ?>/wp-admin/admin.php?page=adue-correo-argentino&tab=export">
     <input type="hidden" name="exportar" value="1" />
     <p>
+        <label>
+            <input type="checkbox" name="export_data[process_address]" value="1" checked />
+            Dividir el campo dirección en dos columnas
+        </label><br>
+        <small>Al seleccionar este campo el plugin intentará tomar el campo de dirección de la orden y dividirlo en dos partes para agregarlos a la columna de "Nombre de calle" y "Número de casa". Esto puede generar problemas con las calles cuyo nombre es un número. Si se deselecciona esta casilla, la dirección irá completamente al campo "Nombre de calle" y "Número de calle" quedará vacío.</small>
+    </p>
+    <p>
         <label><strong>Fecha desde</strong></label>
         <input type="date" name="export_data[date_from]" value="" />
     </p>

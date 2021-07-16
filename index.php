@@ -387,9 +387,14 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
                 if (in_array($shippingMethodId, ['adue_correo_argentino_sucursal', 'adue_correo_argentino_domicilio'])) {
 
-                    preg_match_all('!\d+!', $order->get_shipping_address_1(), $numbers);
-                    $houseNumber = $numbers[count($numbers) - 1];
-                    $streetName = trim(str_replace($houseNumber, '', $order->get_shipping_address_1()));
+                    if($_POST['export_data']['process_address']) {
+                        preg_match_all('!\d+!', $order->get_shipping_address_1(), $numbers);
+                        $houseNumber = $numbers[count($numbers) - 1];
+                        $streetName = trim(str_replace($houseNumber, '', $order->get_shipping_address_1()));
+                    } else {
+                        $streetName = $order->get_shipping_address_1();
+                        $houseNumber[0] = 0;
+                    }
 
                     preg_match_all('!\d+!', $order->get_billing_phone(), $phones);
                     $phone = implode('', $phones[0]);
