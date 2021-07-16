@@ -109,14 +109,14 @@ class AdueShippingMethod extends WC_Shipping_Method
         }
 
         switch (get_option('woocommerce_dimension_unit')) {
-            case 'm':
-                return 100;
+            case 'cm':
+                return 0.01;
             case 'mm':
-                return 0.1;
+                return 0.001;
             case 'in':
-                return 2.54;
+                return 0.0254;
             case 'yd':
-                return 91.44;
+                return 0.9144;
             default:
                 return 1;
         }
