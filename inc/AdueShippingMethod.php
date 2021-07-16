@@ -78,7 +78,7 @@ class AdueShippingMethod extends WC_Shipping_Method
     protected function getWeight($values)
     {
         if ($values['data']->get_weight())
-            return $values['data']->get_weight() * $values['quantity'];
+            return ($values['data']->get_weight() * $this->getValueCoeficient('weight')) * $values['quantity'];
 
         return 0;
     }
@@ -88,9 +88,39 @@ class AdueShippingMethod extends WC_Shipping_Method
         if ($values['data']->get_length() &&
             $values['data']->get_width() &&
             $values['data']->get_height())
-            return ((($values['data']->get_length() / 10) * $values['quantity']) * ($values['data']->get_width() / 10) * ($values['data']->get_height() / 10)) / 6000;
+            return ((($values['data']->get_length() * $this->getValueCoeficient('dimension')) * $values['quantity']) * ($values['data']->get_width() * $this->getValueCoeficient('dimension')) * ($values['data']->get_height() * $this->getValueCoeficient('dimension'))) / 6000;
 
         return 0;
+    }
+
+    private function getValueCoeficient($type)
+    {
+        if($type == 'weight') {
+            switch (get_option('woocommerce_weight_unit')) {
+                case 'g':
+                    return 0.001;
+                case 'lbs':
+                    return 0.453592;
+                case 'oz':
+                    return 0.0283495;
+                default:
+                    return 1;
+            }
+        }
+
+        switch (get_option('woocommerce_dimension_unit')) {
+            case 'm':
+                return 100;
+            case 'mm':
+                return 0.1;
+            case 'in':
+                return 2.54;
+            case 'yd':
+                return 91.44;
+            default:
+                return 1;
+        }
+
     }
 
     protected function getShippingPrice($package = [])
