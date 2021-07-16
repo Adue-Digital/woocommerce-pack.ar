@@ -34,6 +34,10 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.14 =
+* Procesamiento de dirección en la exportación de órdenes
+* Mejoras en el cálculo de dimensiones y conversiones de unidades
+
 = 1.2.13 =
 * Hotfix de checkout
 
