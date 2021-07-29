@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.15
+* Version: 1.2.16
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 5.2.3
@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.15
+* @version 1.2.16
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.15');
+define('PLUGIN_VERSION', '1.2.16');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -480,7 +480,21 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                 die();
             }
 
-            header('Location: ' . PLUGIN_BASE_URL . 'tmp/' . $fileName);
+            if (isset($_POST['export_data']['force_download']) && $_POST['export_data']['force_download']) {
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/vnd.ms-excel');
+                header('Content-Disposition: attachment; filename='.basename(__DIR__ . '/tmp/' . $fileName));
+                header('Content-Transfer-Encoding: binary');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize(__DIR__ . '/tmp/' . $fileName));
+                ob_clean();
+                flush();
+                readfile(__DIR__ . '/tmp/' . $fileName);
+            } else {
+                header('Location: ' . PLUGIN_BASE_URL . 'tmp/' . $fileName);
+            }
 
             die();
 

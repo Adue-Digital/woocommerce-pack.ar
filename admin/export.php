@@ -21,6 +21,13 @@
         <small>Al seleccionar este campo el plugin intentará tomar el campo de dirección de la orden y dividirlo en dos partes para agregarlos a la columna de "Nombre de calle" y "Número de casa". Esto puede generar problemas con las calles cuyo nombre es un número. Si se deselecciona esta casilla, la dirección irá completamente al campo "Nombre de calle" y "Número de calle" quedará vacío.</small>
     </p>
     <p>
+        <label>
+            <input type="checkbox" name="export_data[force_download]" value="1" />
+            Forzar descarga
+        </label><br>
+        <small>Al seleccionar este campo el plugin intentará forzar la descarga del csv en vez de redirigir hacia el archivo como lo hace habitualmente. Utilizá este campo si la configuración de tu servidor no permite la lectura de URLs o si, en vez de descargarse el archivo, se ve su contenido en pantalla.</small>
+    </p>
+    <p>
         <label><strong>Fecha desde</strong></label>
         <input type="date" name="export_data[date_from]" value="" />
     </p>

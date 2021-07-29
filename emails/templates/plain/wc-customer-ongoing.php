@@ -9,7 +9,9 @@ $emailContent = get_option('adue_woo_ca_conf', [
 
 echo "= " . $email_heading . " =\n\n";
 
-echo strip_tags(str_replace('[tracking_code]', $order->get_meta('_ca_tracking_code'), $emailContent ));
+$trackingCode = !empty($order->get_meta('_ca_tracking_code')) ? $order->get_meta('_ca_tracking_code') : $_POST['ca_tracking_code'];
+
+echo strip_tags(str_replace('[tracking_code]', $trackingCode, $emailContent ));
 
 echo __( 'Te recordamos los detalles de tu orden:', 'woocommerce' ) . "\n\n";
 
