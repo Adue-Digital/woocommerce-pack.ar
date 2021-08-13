@@ -34,6 +34,9 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.17 =
+* Corrección en exportación de datos en .csv
+
 = 1.2.15 =
 * Hotfix de cálculo de dimensiones y conversiones de unidades
 

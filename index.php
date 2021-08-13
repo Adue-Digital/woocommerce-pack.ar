@@ -3,7 +3,7 @@
 * Plugin Name: Adue WooCommerce - Correo Argentino
 * Plugin URI: https://adue.digital
 * Description: Integración de precios de envío de Correo Argentino con Woocommerce
-* Version: 1.2.16
+* Version: 1.2.17
 * Author: Adue
 * Author URI: https://adue.digital
 * WC tested up to: 5.2.3
@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.16
+* @version 1.2.17
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.16');
+define('PLUGIN_VERSION', '1.2.17');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -388,11 +388,11 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                 if (in_array($shippingMethodId, ['adue_correo_argentino_sucursal', 'adue_correo_argentino_domicilio'])) {
 
                     if($_POST['export_data']['process_address']) {
-                        preg_match_all('!\d+!', $order->get_shipping_address_1(), $numbers);
+                        preg_match_all('!\d+!', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1(), $numbers);
                         $houseNumber = $numbers[count($numbers) - 1];
-                        $streetName = trim(str_replace($houseNumber, '', $order->get_shipping_address_1()));
+                        $streetName = trim(str_replace($houseNumber, '', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1()));
                     } else {
-                        $streetName = $order->get_shipping_address_1();
+                        $streetName = !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1();
                         $houseNumber[0] = 0;
                     }
 
@@ -412,15 +412,15 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         'altura' => 83,
                         'peso' => 0,
                         'valor_del_contenido' => 0,
-                        'provincia_destino' => normalizeString($order->get_shipping_state()),
+                        'provincia_destino' => normalizeString(!empty($order->get_shipping_state()) ? $order->get_shipping_state() : $order->get_billing_state()),
                         'sucursal_destino' => '',
-                        'localidad_destino' => normalizeString($order->get_shipping_city()),
+                        'localidad_destino' => normalizeString(!empty($order->get_shipping_city()) ? $order->get_shipping_city() : $order->get_billing_city()),
                         'calle_destino' => normalizeString($streetName),
                         'altura_destino' => $houseNumber[0],
-                        'piso' => normalizeString($order->get_shipping_address_2()),
+                        'piso' => normalizeString(!empty($order->get_shipping_address_2()) ? $order->get_shipping_address_2() : $order->get_billing_address_2()),
                         'dpto' => '',
-                        'codpostal_destino' => $order->get_shipping_postcode(),
-                        'destino_nombre' => normalizeString($order->get_formatted_shipping_full_name()),
+                        'codpostal_destino' => !empty($order->get_shipping_postcode()) ? $order->get_shipping_postcode() : $order->get_billing_postcode(),
+                        'destino_nombre' => !empty(normalizeString($order->get_formatted_shipping_full_name())) ? normalizeString($order->get_formatted_shipping_full_name()) : normalizeString($order->get_formatted_billing_full_name()),
                         'destino_email' => $order->get_billing_email(),
                         'cod_area_tel' => '54',
                         'tel' => $phone,
