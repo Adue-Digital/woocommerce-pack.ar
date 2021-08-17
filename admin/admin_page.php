@@ -67,6 +67,13 @@
     </p>
 
     <p>
+        <label><input name="adue_woo_ca_conf[separate_address_fields]" type="checkbox" <?php echo isset($viewData['sentData']['adue_woo_ca_conf']['separate_address_fields']) && $viewData['sentData']['adue_woo_ca_conf']['separate_address_fields'] ? 'checked' : ''; ?> value="1" /> <strong>Separar campos de dirección en dos campos distintos</strong></label><br>
+        Los campos de facturación y envío "Dirección uno" y "Dirección dos", serán modificados para que el cliente pueda agregar nombre de la calle, número de la casa, piso y departamento, con el objetivo de realizar la exportación de manera más sencilla.<br>
+        El plugin intentará guardar los valores en los campos originales de WooCommerce para no afectar el funcionamiento de otros plugins, pero no garantiza que así sea.
+
+    </p>
+
+    <p>
         <button type="submit">Guardar</button>
     </p>
 </form>
