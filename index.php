@@ -433,7 +433,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         $product = wc_get_product($productId);
                         if(!$product)
                             continue;
-                        $shippingRecord['peso'] += (float) $product->get_weight();
+                        $shippingRecord['peso'] += $product->get_weight() * getValueCoeficient('weight');
                         $shippingRecord['valor_del_contenido'] += (float)$product->get_price();
                     }
 
@@ -502,6 +502,36 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
         header('Location: ' . site_url() . '/wp-admin/admin.php?page=adue-correo-argentino&tab=export&not-founded=true');
         die();
+    }
+
+    function getValueCoeficient($type)
+    {
+        if($type == 'weight') {
+            switch (get_option('woocommerce_weight_unit')) {
+                case 'g':
+                    return 0.001;
+                case 'lbs':
+                    return 0.453592;
+                case 'oz':
+                    return 0.0283495;
+                default:
+                    return 1;
+            }
+        }
+
+        switch (get_option('woocommerce_dimension_unit')) {
+            case 'cm':
+                return 0.01;
+            case 'mm':
+                return 0.001;
+            case 'in':
+                return 0.0254;
+            case 'yd':
+                return 0.9144;
+            default:
+                return 1;
+        }
+
     }
 
     function normalizeString($string) {
