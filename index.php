@@ -598,7 +598,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
     function getValueCoeficient($type)
     {
-        if($type == 'weight') {
+        if ($type == 'weight') {
             switch (get_option('woocommerce_weight_unit')) {
                 case 'g':
                     return 0.001;
@@ -623,6 +623,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             default:
                 return 1;
         }
+    }
 
     function getAddressInformation($order)
     {
