@@ -162,6 +162,102 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     add_filter( 'woocommerce_email_classes', 'register_ca_ongoing_email', 90, 1 );
     /** End register Ongoing email */
 
+    /** Separate address fields */
+    function separate_address_fields( $fields ) {
+        $config = get_option('adue_woo_ca_conf');
+        if(isset($config['separate_address_fields']) && $config['separate_address_fields']) {
+            $auxArray = [];
+            foreach ($fields as $key => $field) {
+                if($key == 'address_1' || $key == 'address_2') {
+                    continue;
+                }
+                if($key == 'city') {
+                    $auxArray['street_name'] = [
+                        'label' => __('Nombre de la calle', 'woocommerce'),
+                        'placeholder' => _x('Nombre de la calle', 'placeholder', 'woocommerce'),
+                        'required' => true,
+                        'class' => array('form-row', 'form-row-first'),
+                        'clear' => true
+                    ];
+                    $auxArray['house_number'] = [
+                        'label' => __('Número de casa', 'woocommerce'),
+                        'placeholder' => _x('Número de casa', 'placeholder', 'woocommerce'),
+                        'required' => true,
+                        'class' => array('form-row', 'form-row-last'),
+                        'clear' => true
+                    ];
+                    $auxArray['floor'] = [
+                        'label' => __('Piso', 'woocommerce'),
+                        'placeholder' => _x('Piso', 'placeholder', 'woocommerce'),
+                        'required' => false,
+                        'class' => array('form-row', 'form-row-first'),
+                        'clear' => true
+                    ];
+                    $auxArray['deparment'] = [
+                        'label' => __('Departamento', 'woocommerce'),
+                        'placeholder' => _x('Departamento', 'placeholder', 'woocommerce'),
+                        'required' => false,
+                        'class' => array('form-row', 'form-row-last'),
+                        'clear' => true
+                    ];
+                }
+                $auxArray[$key] = $field;
+            }
+
+            return $auxArray;
+
+        }
+
+        return $fields;
+    }
+    add_filter( 'woocommerce_default_address_fields' , 'separate_address_fields' );
+
+    function get_separated_address_fields($order) {
+        $config = get_option('adue_woo_ca_conf');
+
+        if(isset($config['separate_address_fields']) && $config['separate_address_fields']) {
+            $address = get_post_meta($order->get_id(), '_billing_street_name', true) . " " .
+            get_post_meta($order->get_id(), '_billing_house_number', true) . " " .
+            get_post_meta($order->get_id(), '_billing_floor', true) . " " .
+            get_post_meta($order->get_id(), '_billing_deparment', true);
+
+            echo '<p><strong>' . __('Dirección en una línea') . ':</strong> ' . $address . '</p>';
+        }
+    }
+    add_action( 'woocommerce_admin_order_data_after_shipping_address', 'get_separated_address_fields', 10, 1 );
+    add_action( 'woocommerce_admin_order_data_after_billing_address', 'get_separated_address_fields', 10, 1 );
+
+    function save_separated_address_fields( $order_id ) {
+        $order = wc_get_order( $order_id );
+        $config = get_option('adue_woo_ca_conf');
+        if(isset($config['separate_address_fields']) && $config['separate_address_fields']) {
+            $order->set_billing_address_1(get_post_meta($order->get_id(), '_billing_street_name', true) . " " .
+                get_post_meta($order->get_id(), '_billing_house_number', true));
+            $order->set_billing_address_2(
+                get_post_meta($order->get_id(), '_billing_floor', true) . " " .
+                get_post_meta($order->get_id(), '_billing_deparment', true));
+
+            update_post_meta($order->get_id(), '_billing_address_1', get_post_meta($order->get_id(), '_billing_street_name', true) . " " .
+                get_post_meta($order->get_id(), '_billing_house_number', true));
+            update_post_meta($order->get_id(), '_billing_address_2', get_post_meta($order->get_id(), '_billing_floor', true) . " " .
+                get_post_meta($order->get_id(), '_billing_deparment', true));
+
+            $order->set_shipping_address_1(get_post_meta($order->get_id(), '_shipping_street_name', true) . " " .
+                get_post_meta($order->get_id(), '_shipping_house_number', true));
+            $order->set_shipping_address_2(
+                get_post_meta($order->get_id(), '_shipping_floor', true) . " " .
+                get_post_meta($order->get_id(), '_shipping_deparment', true));
+
+            update_post_meta($order->get_id(), '_shipping_address_1', get_post_meta($order->get_id(), '_shipping_street_name', true) . " " .
+                get_post_meta($order->get_id(), '_shipping_house_number', true));
+            update_post_meta($order->get_id(), '_shipping_address_2', get_post_meta($order->get_id(), '_shipping_floor', true) . " " .
+                get_post_meta($order->get_id(), '_shipping_deparment', true));
+        }
+    }
+    add_action( 'woocommerce_thankyou', 'save_separated_address_fields', 20, 1);
+
+    /** End Separate address fields */
+
     function register_admin_submenu_page()
     {
         add_submenu_page( 'woocommerce',
@@ -207,6 +303,9 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
             if(!isset($viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content']))
                 $viewData['sentData']['adue_woo_ca_conf']['ongoing_email_content'] = 'El código de seguimiento de tu pedido es [tracking_code] y podés ver el estado del envío <a href="https://www.correoargentino.com.ar/formularios/e-commerce?id=[tracking_code]" target="_blank">haciendo click acá</a>';
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['separate_address_fields']))
+                $viewData['sentData']['adue_woo_ca_conf']['separate_address_fields'] = false;
         }
 
         $viewData['statuses'] = wc_get_order_statuses();
@@ -387,14 +486,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
                 if (in_array($shippingMethodId, ['adue_correo_argentino_sucursal', 'adue_correo_argentino_domicilio'])) {
 
-                    if($_POST['export_data']['process_address']) {
-                        preg_match_all('!\d+!', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1(), $numbers);
-                        $houseNumber = $numbers[count($numbers) - 1];
-                        $streetName = trim(str_replace($houseNumber, '', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1()));
-                    } else {
-                        $streetName = !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1();
-                        $houseNumber[0] = 0;
-                    }
+                    $addressInformation = getAddressInformation($order);
 
                     preg_match_all('!\d+!', $order->get_billing_phone(), $phones);
                     $phone = implode('', $phones[0]);
@@ -415,10 +507,10 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         'provincia_destino' => normalizeString(!empty($order->get_shipping_state()) ? $order->get_shipping_state() : $order->get_billing_state()),
                         'sucursal_destino' => '',
                         'localidad_destino' => normalizeString(!empty($order->get_shipping_city()) ? $order->get_shipping_city() : $order->get_billing_city()),
-                        'calle_destino' => normalizeString($streetName),
-                        'altura_destino' => $houseNumber[0],
-                        'piso' => normalizeString(!empty($order->get_shipping_address_2()) ? $order->get_shipping_address_2() : $order->get_billing_address_2()),
-                        'dpto' => '',
+                        'calle_destino' => $addressInformation['street_name'],
+                        'altura_destino' => $addressInformation['house_number'],
+                        'piso' => $addressInformation['floor'],
+                        'dpto' => $addressInformation['department'],
                         'codpostal_destino' => !empty($order->get_shipping_postcode()) ? $order->get_shipping_postcode() : $order->get_billing_postcode(),
                         'destino_nombre' => !empty(normalizeString($order->get_formatted_shipping_full_name())) ? normalizeString($order->get_formatted_shipping_full_name()) : normalizeString($order->get_formatted_billing_full_name()),
                         'destino_email' => $order->get_billing_email(),
@@ -506,7 +598,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
     function getValueCoeficient($type)
     {
-        if($type == 'weight') {
+        if ($type == 'weight') {
             switch (get_option('woocommerce_weight_unit')) {
                 case 'g':
                     return 0.001;
@@ -531,7 +623,40 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             default:
                 return 1;
         }
+    }
 
+    function getAddressInformation($order)
+    {
+        $orderStreetName =  get_post_meta($order->get_id(), '_shipping_street_name', true) ? get_post_meta($order->get_id(), '_shipping_street_name', true) : get_post_meta($order->get_id(), '_billing_street_name', true);
+        $orderHouseNumber =  get_post_meta($order->get_id(), '_shipping_house_number', true) ? get_post_meta($order->get_id(), '_shipping_house_number', true) : get_post_meta($order->get_id(), '_billing_house_number', true);
+        $orderFloor =  get_post_meta($order->get_id(), '_shipping_floor', true) ? get_post_meta($order->get_id(), '_shipping_floor', true) : get_post_meta($order->get_id(), '_billing_floor', true);
+        $orderDepartment =  get_post_meta($order->get_id(), '_shipping_deparment', true) ? get_post_meta($order->get_id(), '_shipping_deparment', true) : get_post_meta($order->get_id(), '_billing_deparment', true);
+
+        if($orderStreetName && $orderHouseNumber)
+            return [
+                'street_name' => normalizeString($orderStreetName),
+                'house_number' => normalizeString($orderHouseNumber),
+                'floor' => normalizeString($orderFloor),
+                'department' => normalizeString($orderDepartment),
+            ];
+
+        if($_POST['export_data']['process_address']) {
+            preg_match_all('!\d+!', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1(), $numbers);
+            $houseNumber = $numbers[count($numbers) - 1];
+            $streetName = trim(str_replace($houseNumber, '', !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1()));
+        } else {
+            $streetName = !empty($order->get_shipping_address_1()) ? $order->get_shipping_address_1() : $order->get_billing_address_1();
+            $houseNumber[0] = 0;
+        }
+
+        $floor = normalizeString(!empty($order->get_shipping_address_2()) ? $order->get_shipping_address_2() : $order->get_billing_address_2());
+
+        return [
+            'street_name' => normalizeString($streetName),
+            'house_number' => normalizeString($houseNumber[0]),
+            'floor' => normalizeString($floor),
+            'department' => '',
+        ];
     }
 
     function normalizeString($string) {
