@@ -34,6 +34,9 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.19 =
+* Posibilidad de separar los campos de dirección para una mejor organización
+
 = 1.2.18 =
 * Corrección en exportación de datos en .csv
 
