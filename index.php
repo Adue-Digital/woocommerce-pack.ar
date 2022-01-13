@@ -525,8 +525,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         $product = wc_get_product($productId);
                         if(!$product)
                             continue;
-                        $shippingRecord['peso'] += $product->get_weight() * getValueCoeficient('weight');
-                        $shippingRecord['valor_del_contenido'] += (float)$product->get_price();
+                        $shippingRecord['peso'] += ($product->get_weight() * getValueCoeficient('weight')) * $productData['quantity'];
+                        $shippingRecord['valor_del_contenido'] += (float) $productData['total'];
                     }
 
                     if ($shippingMethodId == 'adue_correo_argentino_sucursal') {
