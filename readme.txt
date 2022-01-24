@@ -34,6 +34,10 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.21 =
+* Fix en incompatibilidad de envío de correo para estado "En camino"
+* Fix en suma de pesos para descarga de .csv
+
 = 1.2.19 =
 * Posibilidad de separar los campos de dirección para una mejor organización
 
