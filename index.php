@@ -701,4 +701,17 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
         return isset(json_decode($response)->branch_office_code) ? json_decode($response)->branch_office_code : false;
     }
+
+    if(isset($_POST['action']) && $_POST['action'] == 'editpost' &&
+        isset($_POST['post_type']) && $_POST['post_type'] == 'shop_order' &&
+        isset($_POST['original_post_status']) && $_POST['original_post_status'] != 'wc-ca-ongoing' &&
+        isset($_POST['order_status']) && $_POST['order_status'] == 'wc-ca-ongoing'
+    ) {
+        $orderId = $_POST['post_ID'];
+        add_action('woocommerce_after_register_post_type', function () use ($orderId) {
+            $mailer = WC()->mailer();
+            $emails = $mailer->get_emails();
+            $emails['WC_Ongoing']->trigger($orderId);
+        }, 999);
+    }
 }

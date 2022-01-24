@@ -35,13 +35,13 @@ class WC_Ongoing extends WC_Email {
         $this->template_base  = __DIR__ . '/templates/';
 
         // Action to which we hook onto to send the email.
-        add_action( 'woocommerce_order_status_ca-ongoing', array( $this, 'trigger' ) );
+        //add_action( 'woocommerce_order_status_ca-ongoing', array( $this, 'trigger' ) );
 
         parent::__construct();
     }
 
     public function trigger( $order_id ) {
-
+        ini_set('display_errors', 1);
         $this->object = wc_get_order( $order_id );
 
         if ( version_compare( '3.0.0', WC()->version, '>' ) ) {
