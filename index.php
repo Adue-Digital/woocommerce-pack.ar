@@ -312,7 +312,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
 
         if(isset($_POST['guardar']) && $_POST['guardar']) {
             $viewData['sentData'] = $_POST;
-            $viewData['response'] = save_data($_POST);
+            $viewData['response'] = adue_save_data($_POST);
         }
 
         if(isset($_POST['exportar']) && $_POST['exportar']) {
@@ -373,7 +373,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
     add_action('woocommerce_checkout_create_order', 'save_branch_office_code', 20, 2);
 
-    function save_data($data)
+    function adue_save_data($data)
     {
         if(!isset($data['adue_woo_ca_conf']['adue_api_key'])) {
             return [
