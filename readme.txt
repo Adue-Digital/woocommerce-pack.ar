@@ -6,7 +6,7 @@ Tags: woocommerce, correo argentino, pack.ar
 
 Tested up to: 5.7.2
 
-Stable tag: 1.2.22
+Stable tag: 1.2.23
 
 Requires PHP: 7.2
 
@@ -34,7 +34,7 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
-= 1.2.22 =
+= 1.2.23 =
 * Cambio de nombre de función save_data a adue_save_data para evitar conflictos
 
 = 1.2.21 =

@@ -12,13 +12,13 @@
 *
 * @author adue.digital
 * @package Adue - Correo Argentino
-* @version 1.2.21
+* @version 1.2.23
 */
 
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.22');
+define('PLUGIN_VERSION', '1.2.23');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
