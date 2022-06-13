@@ -147,10 +147,10 @@ class AdueShippingMethod extends WC_Shipping_Method
         return json_decode($response);
     }
 
-    protected function isFreeShipping($package = [])
+    protected function isFreeShipping($package = [], $type = 'sucursal')
     {
         $config = get_option('adue_woo_ca_conf');
-        return (isset($config['min_free_shipping']) && $config['min_free_shipping'] && (float) $config['min_free_shipping'] <= (float) $package['cart_subtotal']);
+        return (isset($config['min_free_shipping_'.$type]) && $config['min_free_shipping_'.$type] && (float) $config['min_free_shipping_'.$type] <= (float) $package['cart_subtotal']);
     }
 
     protected function getAditionalFeeShipping()

@@ -28,7 +28,7 @@ class WC_Adue_Correo_Argentino_Domicilio extends AdueShippingMethod
     public function calculate_shipping($package = [])
     {
         $title = $this->title;
-        if($this->isFreeShipping($package)) {
+        if($this->isFreeShipping($package, 'domicilio')) {
             $title .= ' GRATIS';
             $cost = 0;
         } else {

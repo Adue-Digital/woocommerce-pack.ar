@@ -37,6 +37,20 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
     }
     add_action('plugins_loaded', 'check_updates');
 
+    /** Update min_free_shipping separated values */
+    function separate_min_free_shipping_values() {
+        $config = get_option('adue_woo_ca_conf');
+        if(isset($config['min_free_shipping'])) {
+            $config['min_free_shipping_sucursal'] = $config['min_free_shipping'];
+            $config['min_free_shipping_domicilio'] = $config['min_free_shipping'];
+            //TODO delete general free shipping
+
+            update_option('adue_woo_ca_conf', $config);
+        }
+    }
+    add_action( 'init', 'separate_min_free_shipping_values' );
+    /** End Update min_free_shipping separated values */
+
     function adue_shipping_methods( $methods )
     {
 
@@ -282,7 +296,8 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             $viewData['sentData']['adue_woo_ca_conf'] = [
                 'adue_api_key' => '',
                 'shipping_method_category' => '',
-                'min_free_shipping' => 0,
+                'min_free_shipping_sucursal' => 0,
+                'min_free_shipping_domicilio' => 0,
                 'aditional_fee_amount' => 0,
                 'ongoing_email_content' => 'El código de seguimiento de tu pedido es [tracking_code] y podés ver el estado del envío <a href="https://www.correoargentino.com.ar/formularios/e-commerce?id=[tracking_code]" target="_blank">haciendo click acá</a>'
             ];
@@ -295,8 +310,11 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             if(!isset($viewData['sentData']['adue_woo_ca_conf']['shipping_method_category']))
                 $viewData['sentData']['adue_woo_ca_conf']['shipping_method_category'] = '';
 
-            if(!isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']))
-                $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] = 0;
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_sucursal']))
+                $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_sucursal'] = 0;
+
+            if(!isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_domicilio']))
+                $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_domicilio'] = 0;
 
             if(!isset($viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount']))
                 $viewData['sentData']['adue_woo_ca_conf']['aditional_fee_amount'] = 0;

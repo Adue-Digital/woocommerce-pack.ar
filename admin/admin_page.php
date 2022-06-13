@@ -53,7 +53,8 @@
     <p>
         <label><strong>Envío gratuito con mínimo de orden (dejar en 0 para no aplicar)</strong></label><br>
         Establecer un monto mínimo de orden desde el cual se ofrece el envío de forma gratuita.<br>
-        $ <input name="adue_woo_ca_conf[min_free_shipping]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping'] : 0; ?>" />
+        $ <input name="adue_woo_ca_conf[min_free_shipping_sucursal]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_sucursal']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_sucursal'] : 0; ?>" /> a sucursal<br><br>
+        $ <input name="adue_woo_ca_conf[min_free_shipping_domicilio]" type="number" min="0" step="0.01"  value="<?php echo isset($viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_domicilio']) ? $viewData['sentData']['adue_woo_ca_conf']['min_free_shipping_domicilio'] : 0; ?>" /> a domicilio
     </p>
 
     <p>
