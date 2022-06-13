@@ -6,7 +6,7 @@ Tags: woocommerce, correo argentino, pack.ar
 
 Tested up to: 5.7.2
 
-Stable tag: 1.2.23
+Stable tag: 1.2.24
 
 Requires PHP: 7.2
 
@@ -33,6 +33,9 @@ Requires PHP: 7.2
 Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo del plugin acá.</a>
 
 == Changelog ==
+
+= 1.2.24 =
+* ¡Separación de valor mínimo de la orden para los distintos métodos de envío!
 
 = 1.2.23 =
 * Cambio de nombre de función save_data a adue_save_data para evitar conflictos
