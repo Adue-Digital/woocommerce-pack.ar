@@ -6,7 +6,7 @@ Tags: woocommerce, correo argentino, pack.ar
 
 Tested up to: 5.7.2
 
-Stable tag: 1.2.24
+Stable tag: 1.2.25
 
 Requires PHP: 7.2
 
@@ -33,6 +33,9 @@ Requires PHP: 7.2
 Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo del plugin acá.</a>
 
 == Changelog ==
+
+= 1.2.24 =
+* Nueva funcionalidad en exportación de csv, podés determinar si querés que las dimensiones de tus envíos se calculen automáticamente o setear las medidas de forma manual.
 
 = 1.2.24 =
 * ¡Separación de valor mínimo de la orden para los distintos métodos de envío!
