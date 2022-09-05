@@ -27,6 +27,24 @@
         </label><br>
         <small>Al seleccionar este campo el plugin intentará forzar la descarga del csv en vez de redirigir hacia el archivo como lo hace habitualmente. Utilizá este campo si la configuración de tu servidor no permite la lectura de URLs o si, en vez de descargarse el archivo, se ve su contenido en pantalla.</small>
     </p>
+    <hr>
+    <p>
+        <strong>Forma de agrupar envíos</strong><br><br>
+        <label>
+            <input type="radio" name="export_data[group_shipping]" value="one_shipping" checked />
+            Agrupar todos los productos en un mismo paquete
+        </label><br>
+        <small>Al agrupar los envíos en un único paquete, si la orden tiene más de un producto, tomará la dimensión mayor correspondiente a todos los productos</small>
+    </p>
+    <p>
+        <label>
+            <input type="radio" name="export_data[group_shipping]" value="custom_dimentions" />
+            Utilizar dimensiones personalizadas (en cm)
+        </label><br>
+        <small>Podés ingresar las dimensiones de todos los paquetes que vas a enviar, tené en cuenta que estas dimensiones aplican para todos los envíos</small><br>
+        Largo: <input type="number" min="0" name="export_data[custom_length]" /> Ancho: <input type="number" min="0" name="export_data[custom_width]" /> Alto: <input type="number" min="0" name="export_data[custom_height]" />
+    </p>
+    <hr>
     <p>
         <label><strong>Fecha desde</strong></label>
         <input type="date" name="export_data[date_from]" value="" />

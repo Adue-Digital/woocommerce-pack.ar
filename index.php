@@ -538,6 +538,10 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         'cel' => $phone,
                     ];
 
+                    $maxWidth = 0;
+                    $maxHeigth = 0;
+                    $maxLength = 0;
+
                     foreach ($order->get_items() as $productData) {
                         $productId = isset($productData['variation_id']) && $productData['variation_id'] ? $productData['variation_id'] : $productData['product_id'];
                         $product = wc_get_product($productId);
@@ -545,6 +549,29 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                             continue;
                         $shippingRecord['peso'] += ($product->get_weight() * getValueCoeficient('weight')) * $productData['quantity'];
                         $shippingRecord['valor_del_contenido'] += (float) $productData['total'];
+
+                        if($_POST['export_data']['group_shipping'] == 'one_shipping') {
+                            if($product->get_width() > $maxWidth)
+                                $maxWidth = $product->get_width();
+
+                            if($product->get_height() > $maxHeigth)
+                                $maxHeigth = $product->get_height();
+
+                            if($product->get_length() > $maxLength)
+                                $maxLength = $product->get_length();
+                        }
+                    }
+
+                    if($_POST['export_data']['group_shipping'] == 'one_shipping') {
+                        $shippingRecord['largo'] = $maxLength;
+                        $shippingRecord['ancho'] = $maxWidth;
+                        $shippingRecord['altura'] = $maxHeigth;
+                    }
+
+                    if($_POST['export_data']['group_shipping'] == 'custom_dimentions') {
+                        $shippingRecord['largo'] = $_POST['export_data']['custom_length'];
+                        $shippingRecord['ancho'] = $_POST['export_data']['custom_width'];
+                        $shippingRecord['altura'] = $_POST['export_data']['custom_height'];
                     }
 
                     if ($shippingMethodId == 'adue_correo_argentino_sucursal') {
