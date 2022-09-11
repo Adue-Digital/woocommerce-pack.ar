@@ -34,7 +34,10 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
-= 1.2.24 =
+= 1.2.26 =
+* Fix en cálculo de peso volumétrico
+
+= 1.2.25 =
 * Nueva funcionalidad en exportación de csv, podés determinar si querés que las dimensiones de tus envíos se calculen automáticamente o setear las medidas de forma manual.
 
 = 1.2.24 =
