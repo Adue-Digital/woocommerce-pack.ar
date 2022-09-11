@@ -85,10 +85,18 @@ class AdueShippingMethod extends WC_Shipping_Method
 
     protected function volumetricWeight($values)
     {
-        if ($values['data']->get_length() &&
-            $values['data']->get_width() &&
-            $values['data']->get_height())
-            return ((($values['data']->get_length() * $this->getValueCoeficient('dimension')) * $values['quantity']) * ($values['data']->get_width() * $this->getValueCoeficient('dimension')) * ($values['data']->get_height() * $this->getValueCoeficient('dimension'))) / 6000;
+        $length = floatval($values['data']->get_length());
+        $width = floatval($values['data']->get_width());
+        $height = floatval($values['data']->get_height());
+
+        if ($length && $width && $height)
+            return (
+                    (
+                        ($length * $this->getValueCoeficient('dimension') * 100) *
+                        ($width * $this->getValueCoeficient('dimension') * 100) *
+                        ($height * $this->getValueCoeficient('dimension') * 100)
+                    ) / 6000
+                ) * $values['quantity'];
 
         return 0;
     }
