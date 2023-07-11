@@ -39,7 +39,7 @@ do_action( 'woocommerce_email_customer_details', $order, $sent_to_admin, $plain_
 
 echo "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n\n";
 
-if ( $additional_content ) {
+if ( isset($additional_content) && $additional_content ) {
     echo esc_html( wp_strip_all_tags( wptexturize( $additional_content ) ) );
     echo "\n\n----------------------------------------\n\n";
 }

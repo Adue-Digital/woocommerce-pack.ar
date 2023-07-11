@@ -34,6 +34,9 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.27 =
+* Fix warning de "Undefined variable $additional_content..." en template de email
+
 = 1.2.26 =
 * Fix en cálculo de peso volumétrico
 
