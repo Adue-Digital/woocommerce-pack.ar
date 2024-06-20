@@ -18,7 +18,7 @@
 if ( ! defined( 'ABSPATH' ) )  exit;
 
 define('PLUGIN_BASE_URL', plugin_dir_url(__FILE__));
-define('PLUGIN_VERSION', '1.2.27');
+define('PLUGIN_VERSION', '1.2.28');
 define('API_URL', 'https://woo-ca-api.adue.digital/');
 
 $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
@@ -479,8 +479,9 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
             "destino_email(obligatorio, debe ser un email valido)",
             "cod_area_tel(opcional)",
             "tel(opcional)",
-            "cod_area_cel(obligatorio)",
-            "cel(obligatorio)"
+            "cod_area_cel(opcional)",
+            "cel(opcional)",
+            "numero_orden(opcional)",
         ];
 
         $orders = wc_get_orders([
@@ -536,6 +537,7 @@ if ( in_array( 'woocommerce/woocommerce.php',  $active_plugins) ) {
                         'tel' => $phone,
                         'cod_area_cel' => '549',
                         'cel' => $phone,
+                        'orden' => $order->get_id()
                     ];
 
                     $maxWidth = 0;
