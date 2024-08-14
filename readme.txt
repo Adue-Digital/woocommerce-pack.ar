@@ -34,6 +34,10 @@ Podés ver una <a href="http://woo-ca-demo.adue.digital/" target="_blank">demo d
 
 == Changelog ==
 
+= 1.2.29 =
+* Se corrige la versión
+* Fix se corrige un parseo de cálculo de pesos
+
 = 1.2.28 =
 * Fix se agrega la columna numero_orden(opcional) en la exportación de CSV
 
